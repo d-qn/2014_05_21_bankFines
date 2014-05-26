@@ -1,0 +1,1015 @@
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+#############################################################################################
+###		SETTINGS#
+#############################################################################################
+#
+source("~/swissinfo/_helpers/helpers.R")#
+font <- "Archivo Narrow"#
+#
+library(quantmod)#
+#
+#############################################################################################
+### aggregate#
+#############################################################################################
+#
+data.table <- read.csv("data_refined.csv")#
+#
+#reformat the date#
+data.table$date <- as.POSIXct(gsub("^(.*)T.*$", "\\1", as.character(data.table$date)))#
+#
+#reformat the reason - removing the last dot#
+data.table$description <- factor(gsub("\\.$", "", as.character(data.table$description)))#
+#
+## collapse fines by bank, reason and description#
+data <- do.call(rbind, by(data.table, interaction(data.table$bank, data.table$reason, data.table$description, drop = T), function(d) {#
+	if(nrow(d) == 1) {#
+		d[1,c('date', 'bank', 'reason', 'valuemillions', 'description')]#
+	} else {#
+		cbind(d[nrow(d),c('date', 'bank', 'reason')], valuemillions = sum(d$valuemillions), description = d[nrow(d),'description'])#
+	}#
+}))#
+rownames(data) <- NULL#
+#
+# reorder by date#
+data <- data[order(data$date),]#
+head(data[order(data$valuemillions, decreasing = T), ])#
+#############################################################################################
+### VIS#
+#############################################################################################
+require(rCharts)
+str(data.table)
+str(data)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(x = "date", y = "bank", data = data, type = "bubble", group = "reason", size = "valuemillions")#
+h1$print()
+h1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(x = "date", y = "bank", data = data, type = "bubble", group = "reason", size = "valuemillions")
+h1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(data.table)#
+at <- data.table(#
+  x = data$date,#
+  y = as.numeric(data$bank),#
+  z = data$valuemillions ,#
+  name = sprintf("<table cellpadding='2' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td>%2$s</td><td align='left'>Profitability: %3$s<br>Fine million USD: %4$s<br>%5$s</td></tr></table>",#
+    as.character(data$bank),#
+	as.character(data$date),#
+    data$reason,#
+    data$valuemillions,#
+    as.character(data$description)),#
+  category = data$reason,#
+  fine = data$valuemillions#
+)#
+#
+# Split the list into categories#
+datSeries <- lapply(split(dat, dat$category), function(x) {#
+    res <- lapply(split(x, rownames(x)), as.list)#
+    names(res) <- NULL#
+    return(res)#
+})#
+a <- rCharts::Highcharts$new()#
+invisible(sapply(datSeries, function(x) a$series(data = x, type = c("bubble"), name = x[[1]]$category)))#
+a <- hPlot(#
+  fine ~ date,#
+  data = datSeries,#
+  type = "bubble"#
+)#
+#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 30,#
+    point = list(#
+      events = list(#
+        click = "#! function() { window.open(this.options.url); } !#"))#
+  )#
+)#
+a$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")#
+a
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(data.table)#
+dat <- data.table(#
+  x = data$date,#
+  y = as.numeric(data$bank),#
+  z = data$valuemillions ,#
+  name = sprintf("<table cellpadding='2' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td>%2$s</td><td align='left'>Profitability: %3$s<br>Fine million USD: %4$s<br>%5$s</td></tr></table>",#
+    as.character(data$bank),#
+	as.character(data$date),#
+    data$reason,#
+    data$valuemillions,#
+    as.character(data$description)),#
+  category = data$reason,#
+  fine = data$valuemillions#
+)#
+#
+# Split the list into categories#
+datSeries <- lapply(split(dat, dat$category), function(x) {#
+    res <- lapply(split(x, rownames(x)), as.list)#
+    names(res) <- NULL#
+    return(res)#
+})#
+a <- rCharts::Highcharts$new()#
+invisible(sapply(datSeries, function(x) a$series(data = x, type = c("bubble"), name = x[[1]]$category)))#
+a <- hPlot(#
+  fine ~ date,#
+  data = datSeries,#
+  type = "bubble"#
+)#
+#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 30,#
+    point = list(#
+      events = list(#
+        click = "#! function() { window.open(this.options.url); } !#"))#
+  )#
+)#
+a$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")#
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- nPlot(x = "date", y = "bank", data = data, type = "bubble", group = "reason", size = "valuemillions")
+h1
+str(data)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ bank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ bank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )
+n1
+str(data)
+data$date
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+#n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numDate ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+#n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1
+str(data)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numDate ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numDate ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis(tickFormat = "#! function(d){ #
+  return d3.time.format('%Y-%m-%d')(new Date(d*1000))#
+} !#") #
+n1
+str(data)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numDate ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numDate ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y-%m-%d')(new Date( d * 1000 ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numDate ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%b %Y')(new Date( d * 86400000 ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%b %Y')(new Date( d * 86400000 ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numDate ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1
+str(data)
+head(data)
+tail(data)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(data.table)#
+dat <- data.table(#
+  x = data$date,#
+  y = as.numeric(data$bank),#
+  z = data$valuemillions ,#
+  name = sprintf("<table cellpadding='2' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td>%2$s</td><td align='left'>Profitability: %3$s<br>Fine million USD: %4$s<br>%5$s</td></tr></table>",#
+    as.character(data$bank),#
+	as.character(data$date),#
+    data$reason,#
+    data$valuemillions,#
+    as.character(data$description)),#
+  category = data$reason,#
+  fine = data$valuemillions#
+)#
+#
+# Split the list into categories#
+datSeries <- lapply(split(dat, dat$category), function(x) {#
+    res <- lapply(split(x, rownames(x)), as.list)#
+    names(res) <- NULL#
+    return(res)#
+})#
+a <- rCharts::Highcharts$new()#
+invisible(sapply(datSeries, function(x) a$series(data = x, type = c("bubble"), name = x[[1]]$category)))#
+a <- hPlot(#
+  fine ~ date,#
+  data = datSeries,#
+  type = "bubble"#
+)#
+#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 30,#
+    point = list(#
+      events = list(#
+        click = "#! function() { window.open(this.options.url); } !#"))#
+  )#
+)#
+a$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")#
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+d1 <- dPlot(#
+  x = "date"#
+  y = "bank",#
+  z = "valuemillions",#
+  groups = "reason",#
+  data = data,#
+  type = "bubble"#
+)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+d1 <- dPlot(#
+  x = "date",#
+  y = "bank",#
+  z = "valuemillions",#
+  groups = "reason",#
+  data = data,#
+  type = "bubble"#
+)
+d1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+d1 <- dPlot(#
+  x = "date",#
+  y = "bank",#
+  z = "valuemillions",#
+  groups = "reason",#
+  data = data,#
+  type = "bubble"#
+)#
+d1$xAxis( grouporderRule = "date", orderRule = "maturity" )
+d1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+d1 <- dPlot(#
+  x = "date",#
+  y = "numBank",#
+  z = "valuemillions",#
+  groups = "reason",#
+  data = data,#
+  type = "bubble"#
+)#
+d1$xAxis( grouporderRule = "date", orderRule = "maturity" )
+d1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    fine ~ date,#
+    data = datSeries,#
+    type = "bubble"#
+  )
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(data.table)#
+dat <- data.table(#
+  x = data$date,#
+  y = as.numeric(data$bank),#
+  z = data$valuemillions ,#
+  name = sprintf("<table cellpadding='2' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td>%2$s</td><td align='left'>Profitability: %3$s<br>Fine million USD: %4$s<br>%5$s</td></tr></table>",#
+    as.character(data$bank),#
+	as.character(data$date),#
+    data$reason,#
+    data$valuemillions,#
+    as.character(data$description)),#
+  category = data$reason,#
+  fine = data$valuemillions#
+)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    fine ~ date,#
+    data = datSeries,#
+    type = "bubble"#
+  )
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    bank ~ date,#
+    data = data,#
+    type = "bubble"#
+  )
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    bank ~ date,#
+    data = data,#
+	size = valuemillions,#
+    type = "bubble"#
+  )
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    bank ~ date,#
+	size = valuemillions#
+	data = data,#
+    type = "bubble"#
+  )
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    bank ~ date,#
+	size = valuemillions,#
+	data = data,#
+    type = "bubble"#
+  )
+str(data)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    bank ~ date,#
+	size = "valuemillions",#
+	data = data,#
+    type = "bubble"#
+  )
+h1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+    bank ~ date,#
+	size = "valuemillions",#
+	data = data,#
+    type = "bubble",#
+	group = "reason"#
+  )
+h2
+h1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(rCharts)#
+#
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart
+?chart
+?xAxis
+n1$xAxis
+?n1$xAxis
+?nPlot
+??nPlot
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 30,#
+    point = list(#
+      events = list(#
+        click = "#! function() { window.open(this.options.url); } !#"))#
+  )#
+)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(rCharts)#
+#
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$chart(forceY = c(0, nlevels(data$bank)))#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$chart(forceY = range(numBank))#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$chart(forceY = range(numBank))#
+n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$chart(forceY = range(numBank))
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$chart(forceY = range(data$numBank))
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(date ~ numBank, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+str(data)
+unique(data)
+unique(data$numBank)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(numBank ~ date, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$yAxis( tickFormat= NULL )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.numeric(data$date)#
+n1 <- nPlot(numBank ~ date, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+data$numDate
+data(economics, package = 'ggplot2')
+str(economics)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)
+str(numDate)
+str(data)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ date, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(rCharts)#
+#
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ date, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ date, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%b %Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(rCharts)#
+#
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ date, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+#n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%b %Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%b %Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(rCharts)#
+#
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(rCharts)#
+#
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$yAxis(tickFormat = "#! function(d) {return ""} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$yAxis(tickFormat = "#! function(d) {return 1} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$yAxis(tickFormat = "#! function(d) {return} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$yAxis(tickFormat = "#! function(d) {return} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+data$numBank <- as.numeric(data$bank)#
+data$numDate <- as.Date(data$date)#
+n1 <- nPlot(bank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+#n1$yAxis(tickFormat = "#! function(d) {return} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+n1 <- nPlot(numBank ~ numDate, data = data, type = "scatterChart", group = "reason")#
+n1$chart(size = '#! function(d){return d.valuemillions} !#')#
+n1$xAxis( tickFormat="#!function(d) {return d3.time.format('%Y')(new Date( d * 86400000 ));}!#" )#
+n1$chart(tooltipContent = "#! function(key, x, y){ #
+  return 'Bank: ' + x + '  y: ' + y #
+} !#")#
+n1$chart(showControls = FALSE)#
+n1$yAxis(tickFormat = "#! function(d) {return} !#")#
+n1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(data.table)#
+dat <- data.table(#
+  x = data$date,#
+  y = as.numeric(data$bank),#
+  z = data$valuemillions ,#
+  name = sprintf("<table cellpadding='2' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td>%2$s</td><td align='left'>Profitability: %3$s<br>Fine million USD: %4$s<br>%5$s</td></tr></table>",#
+    as.character(data$bank),#
+	as.character(data$date),#
+    data$reason,#
+    data$valuemillions,#
+    as.character(data$description)),#
+  category = data$reason,#
+  fine = data$valuemillions#
+)#
+#
+# Split the list into categories#
+datSeries <- lapply(split(dat, dat$category), function(x) {#
+    res <- lapply(split(x, rownames(x)), as.list)#
+    names(res) <- NULL#
+    return(res)#
+})#
+a <- rCharts::Highcharts$new()#
+invisible(sapply(datSeries, function(x) a$series(data = x, type = c("bubble"), name = x[[1]]$category)))#
+a <- hPlot(#
+  fine ~ date,#
+  data = datSeries,#
+  type = "bubble"#
+)#
+#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 30,#
+    point = list(#
+      events = list(#
+        click = "#! function() { window.open(this.options.url); } !#"))#
+  )#
+)#
+a$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")#
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  fine ~ date,#
+  data = datSeries,#
+  type = "bubble"#
+)
+str(datSeries)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  fine ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions"#
+)
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  bank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions"#
+)
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions"#
+)
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 30#
+)
+a
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 20#
+)
+a <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 20#
+))
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+a <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 3,#
+    maxSize = 25#
+))
+a
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+require(data.table)#
+dat <- data.table(#
+  x = data$date,#
+  y = as.numeric(data$bank),#
+  z = data$valuemillions ,#
+  name = sprintf("<table cellpadding='2' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td>%2$s</td><td align='left'>Profitability: %3$s<br>Fine million USD: %4$s<br>%5$s</td></tr></table>",#
+    as.character(data$bank),#
+	as.character(data$date),#
+    data$reason,#
+    data$valuemillions,#
+    as.character(data$description)),#
+  category = data$reason,#
+  fine = data$valuemillions#
+)#
+#
+# Split the list into categories#
+datSeries <- lapply(split(dat, dat$category), function(x) {#
+    res <- lapply(split(x, rownames(x)), as.list)#
+    names(res) <- NULL#
+    return(res)#
+})#
+a <- rCharts::Highcharts$new()#
+invisible(sapply(datSeries, function(x) a$series(data = x, type = c("bubble"), name = x[[1]]$category)))#
+a$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 4,#
+    maxSize = 30,#
+    point = list(#
+      events = list(#
+        click = "#! function() { window.open(this.options.url); } !#"))#
+  )#
+)#
+a$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")#
+a
+data.table
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)#
+h1$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 3,#
+    maxSize = 25#
+))#
+#
+h1$yAxis =1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1$yAxis
+h1$yAxis(categories = NULL)
+h1
+h1$yAxis(setExtremes = c(0,80))
+h1
+h1$yAxis(gridLineColor = "white")
+h1
+h1$yAxis(gridLineColor = "white", min = 0)
+h1
+h1$yAxis(gridLineColor = "white", min = 0, labels = "enabled: false")
+h1
+h1$yAxis(gridLineColor = "white", min = 0, labels = "enabled: false", title = "text: null")
+h1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+## using the new highchart#
+h1 <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)#
+h1$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 5,#
+    maxSize = 25#
+))#
+#
+h1$yAxis(gridLineColor = "white", min = 0, labels = "enabled: false", title = "text: null")
+h1
+setwd('/Users/nguyendu/Google Drive/swissinfo/2014_05_21_bankFines')
+h1 <- hPlot(#
+  numBank ~ date,#
+  data = data,#
+  type = "bubble",#
+  size = "valuemillions",#
+  group = "reason"#
+)#
+h1$plotOptions(#
+  bubble = list(#
+    cursor = "pointer",#
+    minSize = 5,#
+    maxSize = 30#
+))#
+#
+h1$yAxis(gridLineColor = "white", min = 0, labels = "enabled: false", title = "text: null")#
+h1
+library(rCharts)# Example 1hPlot(Pulse ~ Height, data = MASS::survey, type = "scatter", group = "Exer")## Example 2a <- hPlot(Pulse ~ Height, data = MASS::survey, type = "bubble", title = "Zoom demo", subtitle = "bubble chart", size = "Age", group = "Exer")a$chart(zoomType = "xy")a$exporting(enabled = T)a
+h1
+a
